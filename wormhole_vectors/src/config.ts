@@ -35,6 +35,20 @@ export const TUNNEL = (() => {
   };
 })();
 
+/** Local-space wormhole port markers (parent: each space's `rotating` group). */
+export const SPARSE_PORTS = {
+  exitTowardDense: new THREE.Vector3(0.92, 0.08, 0.06),
+} as const;
+
+export const DENSE_PORTS = {
+  entryFromSparse: new THREE.Vector3(-0.92, 0.06, -0.04),
+  exitTowardGraph: new THREE.Vector3(-0.28, -0.82, 0.12),
+} as const;
+
+export const GRAPH_PORTS = {
+  entryFromDense: new THREE.Vector3(0.42, 0.88, 0.1),
+} as const;
+
 export const TIMING = {
   /** Seconds before any beam starts. */
   beamWarmup: 2.8,
@@ -50,7 +64,6 @@ export const ROTATION_SPEED = 0.35;
 
 export type DocPoint = {
   id: string;
-  local: THREE.Vector3;
   isQuery?: boolean;
 };
 
@@ -78,10 +91,8 @@ export type VectorSpaceConfig = {
   planeSize: number;
   documents: DocPoint[];
   arrows: ArrowSpec[];
-  titleLabelClass: string;
 };
 
-/** Sparse: cluster toward +local X (toward dense). Dense: toward -X and slightly -Y (toward sparse / graph). */
 export const SPARSE_SPACE: VectorSpaceConfig = {
   key: "sparse",
   title: "SPARSE SPACE",
@@ -93,13 +104,12 @@ export const SPARSE_SPACE: VectorSpaceConfig = {
   planeCount: 5,
   planeSpacing: 0.55,
   planeSize: 3.6,
-  titleLabelClass: "label label--title",
   documents: [
-    { id: "DOC_E", local: new THREE.Vector3(0.72, 0.18, 0.12) },
-    { id: "DOC_B", local: new THREE.Vector3(0.55, -0.12, -0.18) },
-    { id: "DOC_D", local: new THREE.Vector3(0.88, -0.22, 0.08) },
-    { id: "DOC_F", local: new THREE.Vector3(0.62, 0.28, -0.06) },
-    { id: "QUERY", local: new THREE.Vector3(0.28, 0.02, 0.04), isQuery: true },
+    { id: "DOC_E" },
+    { id: "DOC_B" },
+    { id: "DOC_D" },
+    { id: "DOC_F" },
+    { id: "QUERY", isQuery: true },
   ],
   arrows: [
     {
@@ -134,12 +144,11 @@ export const DENSE_SPACE: VectorSpaceConfig = {
   planeCount: 5,
   planeSpacing: 0.55,
   planeSize: 3.6,
-  titleLabelClass: "label label--title label--dense-title",
   documents: [
-    { id: "DOC_B", local: new THREE.Vector3(-0.58, 0.08, 0.06) },
-    { id: "DOC_A", local: new THREE.Vector3(-0.42, 0.22, -0.14) },
-    { id: "DOC_C", local: new THREE.Vector3(-0.72, -0.32, 0.12) },
-    { id: "DOC_D", local: new THREE.Vector3(-0.35, -0.48, -0.08) },
+    { id: "DOC_B" },
+    { id: "DOC_A" },
+    { id: "DOC_C" },
+    { id: "DOC_D" },
   ],
   arrows: [
     {
@@ -163,10 +172,10 @@ export const DENSE_SPACE: VectorSpaceConfig = {
   ],
 };
 
-export type GraphNodeSpec = { id: string; position: THREE.Vector3 };
+export type GraphNodeSpec = { id: string; local: THREE.Vector3 };
 export type GraphEdgeSpec = [string, string];
 
-const g = 1.6;
+const gl = 1.08;
 
 export const GRAPH_SPACE = {
   title: "GRAPH SPACE",
@@ -174,13 +183,12 @@ export const GRAPH_SPACE = {
   position: new THREE.Vector3(0, -2.4, 0.5),
   initialRotation: new THREE.Euler(0.06, 0, -0.04),
   accent: 0xe879f9,
-  titleLabelClass: "label label--title label--graph-title",
   nodes: [
-    { id: "DOC_A", position: new THREE.Vector3(0.9 * g, 0.35 * g, 0.2 * g) },
-    { id: "DOC_B", position: new THREE.Vector3(-0.5 * g, 0.55 * g, -0.35 * g) },
-    { id: "DOC_C", position: new THREE.Vector3(-0.85 * g, -0.25 * g, 0.45 * g) },
-    { id: "DOC_D", position: new THREE.Vector3(0.35 * g, -0.65 * g, -0.2 * g) },
-    { id: "DOC_E", position: new THREE.Vector3(0.15 * g, 0.05 * g, 0.75 * g) },
+    { id: "DOC_A", local: new THREE.Vector3(0.9 * gl, 0.35 * gl, 0.2 * gl) },
+    { id: "DOC_B", local: new THREE.Vector3(-0.52 * gl, 0.58 * gl, -0.38 * gl) },
+    { id: "DOC_C", local: new THREE.Vector3(-0.88 * gl, -0.28 * gl, 0.42 * gl) },
+    { id: "DOC_D", local: new THREE.Vector3(0.38 * gl, -0.68 * gl, -0.22 * gl) },
+    { id: "DOC_E", local: new THREE.Vector3(0.12 * gl, 0.08 * gl, 0.78 * gl) },
   ] satisfies GraphNodeSpec[],
   edges: [
     ["DOC_A", "DOC_B"],

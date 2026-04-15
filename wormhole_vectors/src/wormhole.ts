@@ -1,8 +1,15 @@
 import * as THREE from "three";
-import { ANCHORS, TIMING, TUNNEL } from "./config";
+import { ANCHORS, TIMING } from "./config";
 
 const DEFAULT_ORB_OPACITY = 0.42;
 const DEFAULT_ORB_EMISSIVE = 1.1;
+
+export type WormholePortRefs = {
+  sparseOut: THREE.Object3D;
+  denseIn: THREE.Object3D;
+  denseOut: THREE.Object3D;
+  graphIn: THREE.Object3D;
+};
 
 type Particle = {
   mesh: THREE.Mesh;
@@ -17,6 +24,10 @@ export class Wormhole {
   private readonly lineSparseToDense: THREE.LineCurve3;
   private readonly lineDenseToGraph: THREE.LineCurve3;
   private readonly tmp = new THREE.Vector3();
+  private readonly wA = new THREE.Vector3();
+  private readonly wB = new THREE.Vector3();
+  private readonly wC = new THREE.Vector3();
+  private readonly wD = new THREE.Vector3();
   private readonly sharedSphereGeom: THREE.SphereGeometry;
   private readonly spineSparseDense: THREE.Line;
   private readonly spineDenseGraph: THREE.Line;
@@ -25,17 +36,21 @@ export class Wormhole {
   private readonly pulseGeom: THREE.SphereGeometry;
   private readonly pulseSparseLight: THREE.PointLight;
   private readonly pulseDenseLight: THREE.PointLight;
+  private portSparseOut: THREE.Object3D | null = null;
+  private portDenseIn: THREE.Object3D | null = null;
+  private portDenseOut: THREE.Object3D | null = null;
+  private portGraphIn: THREE.Object3D | null = null;
 
   constructor(scene: THREE.Scene, particleCountPerBeam = 36) {
     scene.add(this.group);
 
     this.lineSparseToDense = new THREE.LineCurve3(
-      TUNNEL.sparseToDenseStart.clone(),
-      TUNNEL.sparseToDenseEnd.clone(),
+      new THREE.Vector3(),
+      new THREE.Vector3(1, 0, 0),
     );
     this.lineDenseToGraph = new THREE.LineCurve3(
-      TUNNEL.denseToGraphStart.clone(),
-      TUNNEL.denseToGraphEnd.clone(),
+      new THREE.Vector3(),
+      new THREE.Vector3(1, 0, 0),
     );
 
     const spineMat = new THREE.LineBasicMaterial({
@@ -48,8 +63,8 @@ export class Wormhole {
 
     this.spineSparseDense = new THREE.Line(
       new THREE.BufferGeometry().setFromPoints([
-        TUNNEL.sparseToDenseStart.clone(),
-        TUNNEL.sparseToDenseEnd.clone(),
+        new THREE.Vector3(),
+        new THREE.Vector3(1, 0, 0),
       ]),
       spineMat.clone(),
     );
@@ -58,8 +73,8 @@ export class Wormhole {
 
     this.spineDenseGraph = new THREE.Line(
       new THREE.BufferGeometry().setFromPoints([
-        TUNNEL.denseToGraphStart.clone(),
-        TUNNEL.denseToGraphEnd.clone(),
+        new THREE.Vector3(),
+        new THREE.Vector3(1, 0, 0),
       ]),
       spineMat.clone(),
     );
@@ -76,7 +91,6 @@ export class Wormhole {
       depthWrite: false,
     });
     this.pulseSparse = new THREE.Mesh(this.pulseGeom, pulseMatSparse);
-    this.pulseSparse.position.copy(TUNNEL.sparseToDenseStart);
     this.pulseSparse.visible = false;
     this.group.add(this.pulseSparse);
 
@@ -89,16 +103,13 @@ export class Wormhole {
       depthWrite: false,
     });
     this.pulseDense = new THREE.Mesh(this.pulseGeom, pulseMatDense);
-    this.pulseDense.position.copy(TUNNEL.denseToGraphStart);
     this.pulseDense.visible = false;
     this.group.add(this.pulseDense);
 
     this.pulseSparseLight = new THREE.PointLight(0xfbbf24, 0, 10, 2);
-    this.pulseSparseLight.position.copy(TUNNEL.sparseToDenseStart);
     this.group.add(this.pulseSparseLight);
 
     this.pulseDenseLight = new THREE.PointLight(0x67e8f9, 0, 10, 2);
-    this.pulseDenseLight.position.copy(TUNNEL.denseToGraphStart);
     this.group.add(this.pulseDenseLight);
 
     this.sharedSphereGeom = new THREE.SphereGeometry(0.1, 16, 16);
@@ -140,6 +151,48 @@ export class Wormhole {
     this.group.add(glow);
   }
 
+  bindPorts(ports: WormholePortRefs): void {
+    this.portSparseOut = ports.sparseOut;
+    this.portDenseIn = ports.denseIn;
+    this.portDenseOut = ports.denseOut;
+    this.portGraphIn = ports.graphIn;
+  }
+
+  private syncPortWorldGeometry(): void {
+    if (
+      !this.portSparseOut ||
+      !this.portDenseIn ||
+      !this.portDenseOut ||
+      !this.portGraphIn
+    ) {
+      return;
+    }
+
+    this.portSparseOut.getWorldPosition(this.wA);
+    this.portDenseIn.getWorldPosition(this.wB);
+    this.portDenseOut.getWorldPosition(this.wC);
+    this.portGraphIn.getWorldPosition(this.wD);
+
+    this.lineSparseToDense.v1.copy(this.wA);
+    this.lineSparseToDense.v2.copy(this.wB);
+    this.lineDenseToGraph.v1.copy(this.wC);
+    this.lineDenseToGraph.v2.copy(this.wD);
+
+    (this.spineSparseDense.geometry as THREE.BufferGeometry).setFromPoints([
+      this.wA.clone(),
+      this.wB.clone(),
+    ]);
+    (this.spineDenseGraph.geometry as THREE.BufferGeometry).setFromPoints([
+      this.wC.clone(),
+      this.wD.clone(),
+    ]);
+
+    this.pulseSparse.position.copy(this.wA);
+    this.pulseSparseLight.position.copy(this.wA);
+    this.pulseDense.position.copy(this.wC);
+    this.pulseDenseLight.position.copy(this.wC);
+  }
+
   reset(): void {
     for (const p of this.particles) {
       p.mesh.visible = false;
@@ -159,6 +212,8 @@ export class Wormhole {
   }
 
   update(elapsed: number): void {
+    this.syncPortWorldGeometry();
+
     const {
       beamWarmup,
       beamSparseToDense,

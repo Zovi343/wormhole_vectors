@@ -137,17 +137,38 @@ body {
   user-select: none;
 }
 
-.label--title {
-  font-size: 11px;
-  letter-spacing: 0.08em;
+.space-heading {
+  text-align: center;
+  user-select: none;
+  pointer-events: none;
+}
+
+.space-heading__main {
+  font-size: clamp(13px, 1.35vw, 16px);
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  line-height: 1.15;
+  text-shadow: 0 0 12px rgba(0, 0, 0, 0.95), 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.space-heading__sub {
+  margin-top: 0.15rem;
+  font-size: clamp(10px, 1vw, 12px);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: rgba(226, 232, 240, 0.88);
+  text-shadow: 0 0 8px rgba(0, 0, 0, 0.9);
+}
+
+.space-heading--sparse .space-heading__main {
   color: #fde68a;
 }
 
-.label--dense-title {
+.space-heading--dense .space-heading__main {
   color: #5eead4;
 }
 
-.label--graph-title {
+.space-heading--graph .space-heading__main {
   color: #f0abfc;
 }
 

@@ -20,6 +20,13 @@ export function createDemoApp(bundle: SceneBundle): DemoApp {
   const graph = new GraphSpace();
   const wormhole = new Wormhole(scene);
 
+  wormhole.bindPorts({
+    sparseOut: sparse.portWormholeA,
+    denseIn: dense.portWormholeA,
+    denseOut: dense.portWormholeB!,
+    graphIn: graph.portWormholeA,
+  });
+
   scene.add(sparse.group, dense.group, graph.group);
 
   let raf = 0;
