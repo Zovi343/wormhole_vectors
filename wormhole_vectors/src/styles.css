@@ -102,6 +102,20 @@ body {
   z-index: 2;
 }
 
+.credit-note {
+  position: absolute;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  font-size: 0.7rem;
+  line-height: 1.3;
+  text-align: right;
+  color: rgba(226, 232, 240, 0.68);
+  text-shadow: 0 0 8px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+  user-select: none;
+  z-index: 2;
+}
+
 .btn {
   cursor: pointer;
   padding: 0.45rem 0.9rem;
