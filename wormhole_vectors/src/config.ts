@@ -40,12 +40,19 @@ export const SPARSE_PORTS = {
   exitTowardDense: new THREE.Vector3(0.92, 0.08, 0.06),
 } as const;
 
-export const DENSE_PORTS = {
-  entryFromSparse: new THREE.Vector3(-0.92, 0.06, -0.04),
-  exitTowardGraph: new THREE.Vector3(-0.28, -0.82, 0.12),
-} as const;
+export const DENSE_PORTS = (() => {
+  const entryFromSparse = new THREE.Vector3(-0.92, 0.06, -0.04);
+  const towardGraph = new THREE.Vector3(-0.22, -0.72, 0.1);
+  const exitTowardGraph = new THREE.Vector3().lerpVectors(
+    entryFromSparse,
+    towardGraph,
+    0.58,
+  );
+  return { entryFromSparse, exitTowardGraph };
+})();
 
 export const GRAPH_PORTS = {
+  /** Visual “incoming” side; dense→graph beam ends on `GRAPH_SPACE.wormholeLineTargetNodeId`. */
   entryFromDense: new THREE.Vector3(0.42, 0.88, 0.1),
 } as const;
 
@@ -175,7 +182,7 @@ export const DENSE_SPACE: VectorSpaceConfig = {
 export type GraphNodeSpec = { id: string; local: THREE.Vector3 };
 export type GraphEdgeSpec = [string, string];
 
-const gl = 1.08;
+const gl = 1.26;
 
 export const GRAPH_SPACE = {
   title: "GRAPH SPACE",
@@ -183,12 +190,16 @@ export const GRAPH_SPACE = {
   position: new THREE.Vector3(0, -2.4, 0.5),
   initialRotation: new THREE.Euler(0.06, 0, -0.04),
   accent: 0xe879f9,
+  /** Dense→graph wormhole line ends at this node’s sphere (same local layout as meshes). */
+  wormholeLineTargetNodeId: "DOC_E",
   nodes: [
     { id: "DOC_A", local: new THREE.Vector3(0.9 * gl, 0.35 * gl, 0.2 * gl) },
     { id: "DOC_B", local: new THREE.Vector3(-0.52 * gl, 0.58 * gl, -0.38 * gl) },
     { id: "DOC_C", local: new THREE.Vector3(-0.88 * gl, -0.28 * gl, 0.42 * gl) },
     { id: "DOC_D", local: new THREE.Vector3(0.38 * gl, -0.68 * gl, -0.22 * gl) },
     { id: "DOC_E", local: new THREE.Vector3(0.12 * gl, 0.08 * gl, 0.78 * gl) },
+    { id: "DOC_G", local: new THREE.Vector3(1.05 * gl, -0.15 * gl, 0.28 * gl) },
+    { id: "DOC_H", local: new THREE.Vector3(-0.42 * gl, 0.92 * gl, -0.32 * gl) },
   ] satisfies GraphNodeSpec[],
   edges: [
     ["DOC_A", "DOC_B"],
@@ -198,5 +209,7 @@ export const GRAPH_SPACE = {
     ["DOC_A", "DOC_E"],
     ["DOC_C", "DOC_E"],
     ["DOC_B", "DOC_E"],
+    ["DOC_D", "DOC_G"],
+    ["DOC_A", "DOC_H"],
   ] satisfies GraphEdgeSpec[],
 } as const;

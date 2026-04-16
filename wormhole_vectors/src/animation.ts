@@ -24,7 +24,7 @@ export function createDemoApp(bundle: SceneBundle): DemoApp {
     sparseOut: sparse.portWormholeA,
     denseIn: dense.portWormholeA,
     denseOut: dense.portWormholeB!,
-    graphIn: graph.portWormholeA,
+    graphIn: graph.portWormholeLineEnd,
   });
 
   scene.add(sparse.group, dense.group, graph.group);

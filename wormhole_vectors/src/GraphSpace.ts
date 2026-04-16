@@ -30,8 +30,10 @@ function makeSpaceHeading(main: string, sub: string): CSS2DObject {
 export class GraphSpace {
   readonly group: THREE.Group;
   readonly rotating: THREE.Group;
-  /** Wormhole port: graph side of dense-to-graph segment. */
+  /** Incoming side anchor (bias); not the beam endpoint. */
   readonly portWormholeA: THREE.Object3D;
+  /** World-synced end of the dense→graph wormhole segment. */
+  readonly portWormholeLineEnd: THREE.Object3D;
   private readonly baseRotation: THREE.Euler;
   private angleX = 0;
   private angleY = 0;
@@ -48,6 +50,9 @@ export class GraphSpace {
     this.portWormholeA.position.copy(GRAPH_PORTS.entryFromDense);
     this.rotating.add(this.portWormholeA);
 
+    this.portWormholeLineEnd = new THREE.Object3D();
+    this.rotating.add(this.portWormholeLineEnd);
+
     this.build();
   }
 
@@ -63,7 +68,7 @@ export class GraphSpace {
     });
 
     const portBias = GRAPH_PORTS.entryFromDense.clone().multiplyScalar(0.22);
-    const sphereGeom = new THREE.SphereGeometry(0.15, 18, 18);
+    const sphereGeom = new THREE.SphereGeometry(0.165, 18, 18);
     const nodeById = new Map<
       string,
       { mesh: THREE.Mesh; label: CSS2DObject }
@@ -85,6 +90,14 @@ export class GraphSpace {
       label.position.copy(mesh.position).add(new THREE.Vector3(0, 0.28, 0));
       this.rotating.add(label);
       nodeById.set(n.id, { mesh, label });
+    }
+
+    const lineEnd = nodeById.get(GRAPH_SPACE.wormholeLineTargetNodeId);
+    if (lineEnd) {
+      this.portWormholeLineEnd.position.copy(lineEnd.mesh.position);
+    } else {
+      const first = nodes[0] ? nodeById.get(nodes[0].id) : undefined;
+      if (first) this.portWormholeLineEnd.position.copy(first.mesh.position);
     }
 
     for (const [a, b] of edges) {
