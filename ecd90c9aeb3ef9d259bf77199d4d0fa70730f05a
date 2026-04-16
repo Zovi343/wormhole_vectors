@@ -1,0 +1,27 @@
+wormhole_vectors/src/GraphSpace.ts
+  20b6306a6aba0d58 33,35-36,53-55,71,95-102
+wormhole_vectors/src/config.ts
+  20b6306a6aba0d58 43-52,55,185,193-194,201-202,212-213
+wormhole_vectors/src/animation.ts
+  20b6306a6aba0d58 27
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8",
+  "base_commit_sha": "ecd90c9aeb3ef9d259bf77199d4d0fa70730f05a",
+  "prompts": {
+    "20b6306a6aba0d58": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "42813ece-e407-436d-852e-748d0db65f07",
+        "model": "default"
+      },
+      "human_author": "Jakub Žovák",
+      "messages": [],
+      "total_additions": 37,
+      "total_deletions": 11,
+      "accepted_lines": 38,
+      "overriden_lines": 0
+    }
+  }
+}
