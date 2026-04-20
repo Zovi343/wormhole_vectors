@@ -168,7 +168,7 @@ export const DENSE_SPACE: VectorSpaceConfig = {
       label: "Semantics",
       direction: new THREE.Vector3(-0.2, 1, 0.15),
       length: 1.3 * 1.35,
-      color: 0xf9a8d4,
+      color: 0x99f6e4,
     },
     {
       label: "Frequency",

@@ -52,6 +52,7 @@ function strengthenArrow(arrow: THREE.ArrowHelper): void {
   const lineMat = arrow.line.material as THREE.LineBasicMaterial;
   lineMat.transparent = true;
   lineMat.opacity = 1;
+  lineMat.linewidth = 2.5;
   const coneMat = arrow.cone.material as THREE.MeshBasicMaterial;
   coneMat.transparent = true;
   coneMat.opacity = 1;
@@ -164,8 +165,8 @@ export class VectorSpace {
     const origin = new THREE.Vector3(0, 0, 0);
     for (const spec of arrows) {
       const dir = spec.direction.clone().normalize();
-      const headLen = 0.32;
-      const headWidth = 0.22;
+      const headLen = 0.38;
+      const headWidth = 0.3;
       const arrow = new THREE.ArrowHelper(
         dir,
         origin,
@@ -176,6 +177,20 @@ export class VectorSpace {
       );
       strengthenArrow(arrow);
       this.rotating.add(arrow);
+
+      const shaftLen = Math.max(spec.length - headLen * 0.95, 0.2);
+      const shaftGeom = new THREE.CylinderGeometry(0.045, 0.038, shaftLen, 14);
+      const shaftMat = new THREE.MeshBasicMaterial({
+        color: spec.color,
+        transparent: true,
+        opacity: 0.42,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+      });
+      const shaft = new THREE.Mesh(shaftGeom, shaftMat);
+      shaft.position.copy(origin).addScaledVector(dir, shaftLen * 0.5);
+      shaft.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir);
+      this.rotating.add(shaft);
 
       const tip = origin.clone().addScaledVector(dir, spec.length + headLen * 0.55 + 0.12);
       const dimLabel = makeLabel(spec.label, "label label--dim");
