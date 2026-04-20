@@ -1,0 +1,23 @@
+wormhole_vectors/src/VectorSpace.ts
+  20b6306a6aba0d58 55,168-169,181-193
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.0",
+  "base_commit_sha": "378034033edf5f7a7d64884e0333b6834ecad2eb",
+  "prompts": {
+    "20b6306a6aba0d58": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "42813ece-e407-436d-852e-748d0db65f07",
+        "model": "default"
+      },
+      "human_author": null,
+      "messages": [],
+      "total_additions": 0,
+      "total_deletions": 0,
+      "accepted_lines": 17,
+      "overriden_lines": 0
+    }
+  }
+}
